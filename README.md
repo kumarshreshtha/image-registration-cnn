@@ -18,6 +18,8 @@ A PyTorch implementation of CNN based MRI image registration based on MICCAI 201
 ### Train
 ```
 python ./bin/train.py
+
+optional arguments:
 --linear                  whether to include the affine transform branch or not [default value is True]
 --epochs                  number of epochs to train [default value is 300]
 ```
