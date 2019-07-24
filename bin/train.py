@@ -35,17 +35,18 @@ trainloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 val_dataset = CTScanDataset(val_path, transform=composed)
 valloader = DataLoader(val_dataset, batch_size=val_batch_size)
 
-model = Register3d(trainloader[0].size, linear=affine_transform)
+dev = torch.device(
+    "cuda") if torch.cuda.is_available() else torch.device("cpu")
+
+model = Register3d(trainloader[0].size, device=dev, linear=affine_transform)
+model.to(dev)
+
 loss_func = nn.MSELoss()
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
 scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.1,
                                                  patience=50, verbose=True)
 early_stop = EarlyStopping(patience=100, verbose=True)
 
-dev = torch.device(
-    "cuda") if torch.cuda.is_available() else torch.device("cpu")
-
-model.to(dev)
 
 for epoch in range(num_epochs):
     train_bar = tqdm(trainloader)

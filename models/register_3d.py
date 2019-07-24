@@ -8,7 +8,7 @@ from utils.image_sampling import build_affine_grid
 
 
 class Register3d(nn.Module):
-    def __init__(self, size, linear=False):
+    def __init__(self, size, device, linear=True):
         super(Register3d, self).__init__()
         self.encoder = Encoder()
         self.d_decoder = DRB()
@@ -16,8 +16,9 @@ class Register3d(nn.Module):
         self.transformer = Transformer3d()
         self.size = size
         self.linear = linear
+        self.device = device
         if self.linear:
-            self.linear_grid = build_affine_grid(self.size)
+            self.linear_grid = build_affine_grid(self.size, self.device)
 
     def forward(self, source, target):
         x = self.encoder(source, target)
@@ -28,6 +29,6 @@ class Register3d(nn.Module):
             return t, grad
         else:
             theta = self.a_decoder(x)
-            d2 = affine_grid_3d(theta, self.linear_grid)
+            d2 = affine_grid_3d(theta, self.linear_grid, self.size)
             t = self.transformer(x, d1, d2)
             return t, grad, theta
