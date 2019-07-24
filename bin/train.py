@@ -42,10 +42,15 @@ scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.1,
                                                  patience=50, verbose=True)
 early_stop = EarlyStopping(patience=100, verbose=True)
 
+dev = torch.device(
+    "cuda") if torch.cuda.is_available() else torch.device("cpu")
+
+model.to(dev)
 
 for epoch in range(num_epochs):
     train_bar = tqdm(trainloader)
     for source, target in train_bar:
+        source, target = source.to(dev), target.to(dev)
         optimizer.zero_grad()
         model.train()
         if affine_transform:
