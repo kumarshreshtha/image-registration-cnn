@@ -1,7 +1,7 @@
 # Linear and Deformable Image Registration with 3D CNN
 A PyTorch implementation of CNN based MRI image registration based on MICCAI 2018 paper [Linear and Deformable Image Registration with 3D Convolutional Neural Networks](https://arxiv.org/abs/1809.06226).
 
-**I am still waiting for Data Access Rights so the code has not been tested. I have had some bug reports so I suggest you NOT to use this code unless you are willing to use it as a headstart to adapt it to your needs.
+**I am still waiting for Data Access Rights so the code has not been tested. I have had some bug reports so I suggest you NOT to use this code unless you are willing to use it as a headstart to adapt it to your needs.**
 
 **For a quick introduction to image registration and summary of the paper check out this [presentation](./presentation/Presentation.pdf).**
 
