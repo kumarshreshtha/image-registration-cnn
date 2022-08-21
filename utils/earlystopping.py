@@ -1,36 +1,30 @@
-import torch
-import numpy as np
-
+"""module to keep track of loss improvement during training."""
 
 class EarlyStopping(object):
-    def __init__(self, patience, verbose=False):
-        self.patience = patience
-        self.count = 0
-        self.best_loss = None
-        self.verbose = verbose
-        self.early_stop = False
-        self.val_loss_min = np.inf
+    """Keeps state for the best loss value."""
+    def __init__(self, patience:int):
+        """
 
-    def __call__(self, model, val_loss, epoch):
+        Args:
+            patience (int): Number of epochs to wait for improvement in loss 
+                before stopping training.
+        """
+        self.patience = patience
+        self._count = 0
+        self.best_loss = None
+
+    def __call__(self, val_loss:float)->bool:
+        """Returns `True` if training should be stopped, `False` otherwise.
+        
+        Args:
+            val_loss(float): the validation loss for the current training.
+        """
         if self.best_loss is None:
             self.best_loss = val_loss
-            self.save_checkpoint(val_loss, model, epoch)
-        elif val_loss > self.best_loss:
-            self.count += 1
-            if self.verbose:
-                print(f'EarlyStopping counter:\
-                     {self.count} out of {self.patience}')
-            if self.count >= self.patience:
-                self.early_stop = True
-        else:
-            self.best_loss = val_loss
-            self.save_checkpoint(val_loss, model, epoch)
-            self.count = 0
-
-    def save_checkpoint(self, val_loss, model, epoch):
-        if self.verbose:
-            print(f'Validation loss decreased ({self.val_loss_min:.6f}\
-                --> {val_loss:.6f}).  Saving model ...')
-        torch.save(model.state_dict(),
-                   f'./../checkpoints/checkpoint_{epoch}.pth')
-        self.val_loss_min = val_loss
+            return False
+        if val_loss > self.best_loss:
+            self._count += 1
+            return self._count >= self.patience
+        self.best_loss = val_loss
+        self._count = 0
+        return False

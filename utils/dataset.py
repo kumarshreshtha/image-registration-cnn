@@ -1,21 +1,36 @@
-from torch.utils.data import Dataset
-import os
+"""dataset module for dl image registration training."""
+
+import pathlib
+
+import numpy as np
+import torch
+import torchio
+from torch.utils import data
 
 
-class CTScanDataset(Dataset):
-    '''
-    __getitem__ returns the 3D numpy arrays pair (source,target)
-    for the given index after applying the specified transforms.
-    Waiting for data access approval from
-    NCTN/NCORP Data Archive to implement the function.
-    '''
-    def __init__(self, data_dir, transform=None):
-        super(CTScanDataset, self).__init__()
-        self.dir = data_dir
-        self.transform = transform
+class RegDataset(data.Dataset):
+    """Minimal dataset class that returns the source and target volume pairs.
+
+    The datadir is expected to contain input volumes as numpy arrays on disk:
+     - ./{uid}_src.npy
+     - ./{uid}_tgt.npy
+    """
+
+    def __init__(self, data_dir: pathlib.Path, target_shape=(64, 192, 192)):
+        super().__init__()
+        self._data_dir = data_dir
+        self.uids = {fname.stem.split("_src")
+                     for fname in self._data_dir.glob("*_src.npy")}
+        self.transforms = torchio.Compose([torchio.Resize(target_shape),
+                                           torchio.Clamp(0, 1300),
+                                           torchio.RescaleIntensity((0, 1))])
 
     def __len__(self):
-        return len(os.listdir(self.dir))//2
+        return len(self.uids)
 
-    def __getitem__(self, index):
-        pass
+    def __getitem__(self, idx):
+        src = torch.from_numpy(
+            np.load(self._data_dir/f"{self.uids[idx]}_src.npy"))
+        tgt = torch.from_numpy(
+            np.load(self._data_dir/f"{self.uids[idx]}_tgt.npy"))
+        return self.transforms(src), self.transforms(tgt)
